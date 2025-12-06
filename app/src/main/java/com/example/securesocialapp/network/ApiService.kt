@@ -6,6 +6,7 @@ import com.example.securesocialapp.data.model.request.OtpRequest
 import com.example.securesocialapp.data.model.request.PostRequest
 import com.example.securesocialapp.data.model.request.RefreshRequest
 import com.example.securesocialapp.data.model.request.RegisterRequest
+import com.example.securesocialapp.data.model.response.AuthResponse
 import com.example.securesocialapp.data.model.response.TokenPair
 import okhttp3.ResponseBody
 import retrofit2.http.Body
@@ -24,7 +25,7 @@ interface ApiService {
     suspend fun register(@Body request: RegisterRequest): ResponseBody
 
     @POST("auth/login")
-    suspend fun login(@Body request: LoginRequest): TokenPair
+    suspend fun login(@Body request: LoginRequest): AuthResponse
 
     @GET("auth/check-username")
     suspend fun checkUsername(@Query("username") username: String): Map<String, Boolean>
