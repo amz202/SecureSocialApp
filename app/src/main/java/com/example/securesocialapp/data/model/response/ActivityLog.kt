@@ -1,4 +1,4 @@
-package com.example.securesocialapp.data.model
+package com.example.securesocialapp.data.model.response
 
 data class ActivityLog(
     val id: String,

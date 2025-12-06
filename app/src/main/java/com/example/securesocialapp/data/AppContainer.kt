@@ -63,6 +63,6 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         PostRepositoryImpl(apiService)
     }
     override val authRepository: AuthRepository by lazy {
-        AuthRepositoryImpl(apiService, userPreferences)
+        AuthRepositoryImpl(apiService)
     }
 }

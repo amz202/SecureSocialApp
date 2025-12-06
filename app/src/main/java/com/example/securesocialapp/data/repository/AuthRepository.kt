@@ -19,24 +19,13 @@ interface AuthRepository {
 
 class AuthRepositoryImpl(
     private val apiService: ApiService,
-    private val userPreferences: UserPreferences
 ) : AuthRepository {
     override suspend fun register(request: RegisterRequest): ResponseBody {
         return apiService.register(request)
     }
 
     override suspend fun login(request: LoginRequest): AuthResponse {
-        val response = apiService.login(request)
-
-        userPreferences.saveTokens(response.accessToken, response.refreshToken)
-
-        userPreferences.saveUser(
-            id = response.userId,
-            username = response.username,
-            email = response.email
-        )
-
-        return response
+        return apiService.login(request)
     }
 
     override suspend fun checkUsername(username: String): Map<String, Boolean> {
