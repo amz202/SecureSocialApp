@@ -26,9 +26,6 @@ interface ApiService {
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): TokenPair
 
-    @POST("auth/refresh")
-    suspend fun refresh(@Body request: RefreshRequest): TokenPair
-
     @GET("auth/check-username")
     suspend fun checkUsername(@Query("username") username: String): Map<String, Boolean>
 
@@ -41,16 +38,14 @@ interface ApiService {
     // Post endpoints
     @POST("api/posts")
     suspend fun createPost(
-        @Header("Authorization") token: String,
         @Body request: PostRequest
     ): PostResponse
 
     @GET("api/posts")
-    suspend fun getAllPosts(@Header("Authorization") token: String): List<PostResponse>
+    suspend fun getAllPosts(): List<PostResponse>
 
     @GET("api/posts/{postId}")
     suspend fun getPost(
-        @Header("Authorization") token: String,
         @Path("postId") postId: String
     ): PostResponse
 
@@ -59,13 +54,12 @@ interface ApiService {
 
     @POST("api/posts/{postId}/like")
     suspend fun likePost(
-        @Header("Authorization") token: String,
         @Path("postId") postId: String
     ): ResponseBody
 
     // Dashboard endpoints
     @GET("activity-log")
-    suspend fun getActivityLog(@Header("Authorization") token: String): List<ActivityLog>
+    suspend fun getActivityLog(): List<ActivityLog>
 
     // Demo/Tamper endpoints
     @POST("api/demo/corrupt-like/{likeId}")
