@@ -35,8 +35,8 @@ class AuthViewModel(
         private set
 
     fun login(request: LoginRequest) {
-        loginUiState = BaseUiState.Loading
         viewModelScope.launch {
+            loginUiState = BaseUiState.Loading
             try {
                 val response = authRepository.login(request)
                 userPreferences.saveTokens(response.accessToken, response.refreshToken)
@@ -54,8 +54,8 @@ class AuthViewModel(
     }
 
     fun checkUsername(username: String) {
-        usernameUiState = BaseUiState.Loading
         viewModelScope.launch {
+            usernameUiState = BaseUiState.Loading
             try {
                 val response = authRepository.checkUsername(username)
                 usernameUiState = BaseUiState.Success(response)
@@ -66,8 +66,8 @@ class AuthViewModel(
     }
 
     fun resendOtp(email: String) {
-        otpUiState = BaseUiState.Loading
         viewModelScope.launch {
+            otpUiState = BaseUiState.Loading
             try {
                 val response = authRepository.resendOtp(email)
                 otpUiState = BaseUiState.Success(response)
@@ -78,8 +78,8 @@ class AuthViewModel(
     }
 
     fun verifyOtp(request: OtpRequest){
-        otpUiState = BaseUiState.Loading
         viewModelScope.launch {
+            otpUiState = BaseUiState.Loading
             try {
                 val response = authRepository.verifyOtp(request)
                 otpUiState = BaseUiState.Success(response)

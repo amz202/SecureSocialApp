@@ -54,6 +54,9 @@ interface ApiService {
         @Path("postId") postId: String
     ): ResponseBody
 
+    @GET("api/posts/myPosts")
+    suspend fun getMyPosts(): List<PostResponse>
+
     // Dashboard endpoints
     @GET("activity-log")
     suspend fun getActivityLog(): List<ActivityLog>

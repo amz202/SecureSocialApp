@@ -11,6 +11,7 @@ interface PostRepository{
     suspend fun getPost(postId: String): PostResponse
     suspend fun getPostsByTag(tagName: String): List<PostResponse>
     suspend fun likePost(postId: String): ResponseBody
+    suspend fun getMyPosts(): List<PostResponse>
 }
 
 class PostRepositoryImpl(
@@ -34,5 +35,9 @@ class PostRepositoryImpl(
 
     override suspend fun likePost(postId: String): ResponseBody {
         return apiService.likePost(postId)
+    }
+
+    override suspend fun getMyPosts(): List<PostResponse> {
+        return apiService.getMyPosts()
     }
 }
