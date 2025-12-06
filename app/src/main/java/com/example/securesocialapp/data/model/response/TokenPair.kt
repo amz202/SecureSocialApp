@@ -1,5 +1,6 @@
 package com.example.securesocialapp.data.model.response
 
-data class RefreshRequest(
+data class TokenPair(
+    val accessToken: String,
     val refreshToken: String
 )
