@@ -27,10 +27,10 @@ interface ApiService {
     suspend fun checkUsername(@Query("username") username: String): Map<String, Boolean>
 
     @POST("auth/verify-otp")
-    suspend fun verifyOtp(@Body request: OtpRequest): String
+    suspend fun verifyOtp(@Body request: OtpRequest): ResponseBody
 
     @POST("auth/resend-otp")
-    suspend fun resendOtp(@Query("email") email: String): String
+    suspend fun resendOtp(@Query("email") email: String): ResponseBody
 
     // Post endpoints
     @POST("api/posts")

@@ -13,8 +13,8 @@ interface AuthRepository {
     suspend fun register(request: RegisterRequest): ResponseBody
     suspend fun login(request: LoginRequest): AuthResponse
     suspend fun checkUsername(username: String): Map<String, Boolean>
-    suspend fun verifyOtp(request: OtpRequest): String
-    suspend fun resendOtp(email: String): String
+    suspend fun verifyOtp(request: OtpRequest): ResponseBody
+    suspend fun resendOtp(email: String): ResponseBody
 }
 
 class AuthRepositoryImpl(
@@ -32,11 +32,11 @@ class AuthRepositoryImpl(
         return apiService.checkUsername(username)
     }
 
-    override suspend fun verifyOtp(request: OtpRequest): String {
+    override suspend fun verifyOtp(request: OtpRequest): ResponseBody {
         return apiService.verifyOtp(request)
     }
 
-    override suspend fun resendOtp(email: String): String {
+    override suspend fun resendOtp(email: String): ResponseBody {
         return apiService.resendOtp(email)
     }
 }

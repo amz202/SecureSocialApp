@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
 import com.example.securesocialapp.data.datastore.UserPreferences
+import com.example.securesocialapp.ui.navigation.AppNavigation
 import com.example.securesocialapp.ui.theme.SecureSocialAppTheme
 import com.example.securesocialapp.ui.viewModel.AuthViewModel
 
@@ -24,12 +25,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SecureSocialAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                AppNavigation(authViewModel)
             }
         }
     }

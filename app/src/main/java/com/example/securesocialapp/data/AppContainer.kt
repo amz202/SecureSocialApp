@@ -23,7 +23,7 @@ interface AppContainer{
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
 
-    private val BASE_URL = "http://10.7.97.46:8080/"
+    private val BASE_URL = "http://10.7.96.169:8080/"
     private val userPreferences = UserPreferences(context)
 
     private val json = Json {

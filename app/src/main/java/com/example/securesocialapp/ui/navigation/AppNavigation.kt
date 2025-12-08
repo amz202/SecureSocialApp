@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.securesocialapp.ui.screen.HomeScreen
 import com.example.securesocialapp.ui.screen.auth.LoginScreen
 import com.example.securesocialapp.ui.screen.auth.OtpScreen
 
@@ -51,6 +52,10 @@ fun AppNavigation(
                 authViewModel = authViewModel,
                 navController = navController
             )
+        }
+
+        composable<HomeScreenNav> {
+            HomeScreen()
         }
     }
 }

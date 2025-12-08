@@ -1,5 +1,6 @@
 package com.example.securesocialapp.ui.viewModel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -54,6 +55,7 @@ class AuthViewModel(
                 loginUiState = BaseUiState.Success(response)
             } catch (e: Exception) {
                 loginUiState = BaseUiState.Error
+                e.message?.let { Log.e("authviewmodel", it ) }
             }
         }
     }
@@ -66,6 +68,7 @@ class AuthViewModel(
                 registerUiState = BaseUiState.Success("Registration successful. Please verify your email.")
             } catch (e: Exception) {
                 registerUiState = BaseUiState.Error
+                e.message?.let { Log.e("authviewmodel", it ) }
             }
         }
     }
@@ -82,6 +85,7 @@ class AuthViewModel(
                 usernameUiState = BaseUiState.Success(response)
             } catch (e: Exception) {
                 usernameUiState = BaseUiState.Error
+                e.message?.let { Log.e("authviewmodel", it ) }
             }
         }
     }
@@ -91,9 +95,10 @@ class AuthViewModel(
             otpUiState = BaseUiState.Loading
             try {
                 val response = authRepository.resendOtp(email)
-                otpUiState = BaseUiState.Success(response)
+                otpUiState = BaseUiState.Success(response.string())
             } catch (e: Exception) {
                 otpUiState = BaseUiState.Error
+                e.message?.let { Log.e("authviewmodel", it ) }
             }
         }
     }
@@ -103,12 +108,14 @@ class AuthViewModel(
             otpUiState = BaseUiState.Loading
             try {
                 val response = authRepository.verifyOtp(request)
-                otpUiState = BaseUiState.Success(response)
+                otpUiState = BaseUiState.Success(response.string())
             } catch (e: Exception) {
                 otpUiState = BaseUiState.Error
+                e.message?.let { Log.e("authviewmodel", it ) }
             }
         }
     }
+
 
     fun resetLoginState() {
         loginUiState = BaseUiState.Success(null)

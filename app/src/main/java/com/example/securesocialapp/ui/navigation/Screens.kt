@@ -12,3 +12,6 @@ object SignupScreenNav
 data class OtpScreenNav(
     val email: String
 )
+
+@Serializable
+object HomeScreenNav

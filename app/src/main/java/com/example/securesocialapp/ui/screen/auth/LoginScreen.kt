@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.securesocialapp.data.model.request.LoginRequest
+import com.example.securesocialapp.ui.navigation.HomeScreenNav
 import com.example.securesocialapp.ui.navigation.SignupScreenNav
 import com.example.securesocialapp.ui.viewModel.AuthViewModel
 import com.example.securesocialapp.ui.viewModel.BaseUiState
@@ -38,7 +39,7 @@ fun LoginScreen(
 
     LaunchedEffect(loginUiState) {
         if (loginUiState is BaseUiState.Success && loginUiState.data != null) {
-//            onLoginSuccess()
+            navController.navigate(HomeScreenNav)
         }
     }
 
