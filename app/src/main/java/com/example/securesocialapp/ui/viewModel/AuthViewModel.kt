@@ -12,6 +12,7 @@ import com.example.securesocialapp.SecureSocialApplication
 import com.example.securesocialapp.data.datastore.UserPreferences
 import com.example.securesocialapp.data.model.request.LoginRequest
 import com.example.securesocialapp.data.model.request.OtpRequest
+import com.example.securesocialapp.data.model.request.RegisterRequest
 import com.example.securesocialapp.data.model.response.AuthResponse
 import com.example.securesocialapp.data.repository.AuthRepository
 import kotlinx.coroutines.launch
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 typealias LoginUiState = BaseUiState<AuthResponse?>
 typealias OtpUiState = BaseUiState<String?>
 typealias UsernameUiState = BaseUiState<Map<String, Boolean>?>
+typealias RegisterUiState = BaseUiState<String?>
 
 class AuthViewModel(
     private val authRepository: AuthRepository,
@@ -32,6 +34,9 @@ class AuthViewModel(
         private set
 
     var usernameUiState: UsernameUiState by mutableStateOf(BaseUiState.Success(null))
+        private set
+
+    var registerUiState: RegisterUiState by mutableStateOf(BaseUiState.Success(null))
         private set
 
     fun login(request: LoginRequest) {
@@ -51,6 +56,22 @@ class AuthViewModel(
                 loginUiState = BaseUiState.Error
             }
         }
+    }
+
+    fun register(request: RegisterRequest) {
+        viewModelScope.launch {
+            registerUiState = BaseUiState.Loading
+            try {
+                authRepository.register(request)
+                registerUiState = BaseUiState.Success("Registration successful. Please verify your email.")
+            } catch (e: Exception) {
+                registerUiState = BaseUiState.Error
+            }
+        }
+    }
+
+    fun resetRegisterState() {
+        registerUiState = BaseUiState.Success(null)
     }
 
     fun checkUsername(username: String) {
