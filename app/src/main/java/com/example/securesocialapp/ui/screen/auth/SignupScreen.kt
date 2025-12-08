@@ -18,17 +18,23 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.securesocialapp.data.model.request.RegisterRequest
+import com.example.securesocialapp.ui.navigation.LoginScreenNav
+import com.example.securesocialapp.ui.navigation.OtpScreenNav
 import com.example.securesocialapp.ui.viewModel.AuthViewModel
 import com.example.securesocialapp.ui.viewModel.BaseUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.compareTo
+import kotlin.text.get
 
 @Composable
 fun SignupScreen(
     modifier: Modifier = Modifier,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    navController: NavHostController,
 ) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -42,15 +48,23 @@ fun SignupScreen(
     var usernameCheckJob by remember { mutableStateOf<Job?>(null) }
 
     val usernameUiState = authViewModel.usernameUiState
+    val registerUiState = authViewModel.registerUiState
     val passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{9,}$".toRegex()
     val isPasswordValid = password.matches(passwordRegex)
+
+    LaunchedEffect(registerUiState) {
+        if (registerUiState is BaseUiState.Success && registerUiState.data != null) {
+            navController.navigate(OtpScreenNav(email))
+            authViewModel.resetRegisterState()
+        }
+    }
 
     // Debounced username check
     LaunchedEffect(username) {
         usernameCheckJob?.cancel()
         if (username.isNotBlank() && username.length >= 3) {
             usernameCheckJob = scope.launch {
-                delay(500) // Debounce delay
+                delay(500)
                 authViewModel.checkUsername(username)
             }
         }
@@ -213,108 +227,54 @@ fun SignupScreen(
             }
         )
 
+        if (registerUiState is BaseUiState.Error) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Registration failed. Please try again.",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
-                 authViewModel.register(RegisterRequest(username, email, password))
+                authViewModel.register(RegisterRequest(username, email, password))
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = username.isNotBlank() &&
                     email.isNotBlank() &&
                     password.isNotBlank() &&
+                    isPasswordValid &&
                     password == confirmPassword &&
                     isUsernameAvailable == true &&
-                    !isUsernameChecking
+                    !isUsernameChecking &&
+                    registerUiState !is BaseUiState.Loading
         ) {
-            Text("Sign Up")
+            if (registerUiState is BaseUiState.Loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text("Sign Up")
+            }
         }
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun SignupScreenPreview() {
-    MaterialTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Create Account",
-                style = MaterialTheme.typography.headlineMedium
+                text = "Already have an account?",
+                style = MaterialTheme.typography.bodyMedium
             )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            OutlinedTextField(
-                value = "testuser",
-                onValueChange = {},
-                label = { Text("Username") },
-                modifier = Modifier.fillMaxWidth(),
-                supportingText = {
-                    Text(
-                        "Username is available",
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = "test@example.com",
-                onValueChange = {},
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = "Password123",
-                onValueChange = {},
-                label = { Text("Password") },
-                modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Default.VisibilityOff,
-                            contentDescription = "Show password"
-                        )
-                    }
-                }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = "Password123",
-                onValueChange = {},
-                label = { Text("Confirm Password") },
-                modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Default.VisibilityOff,
-                            contentDescription = "Show password"
-                        )
-                    }
-                }
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {},
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Sign Up")
+            TextButton(onClick = {
+                navController.navigate(LoginScreenNav)
+            }) {
+                Text("Login")
             }
         }
     }

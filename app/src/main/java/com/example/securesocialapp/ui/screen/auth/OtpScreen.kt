@@ -9,7 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.securesocialapp.data.model.request.OtpRequest
+import com.example.securesocialapp.ui.navigation.LoginScreenNav
 import com.example.securesocialapp.ui.viewModel.AuthViewModel
 import com.example.securesocialapp.ui.viewModel.BaseUiState
 import kotlinx.coroutines.delay
@@ -20,7 +22,7 @@ fun OtpScreen(
     modifier: Modifier = Modifier,
     email: String,
     authViewModel: AuthViewModel,
-    onVerificationSuccess: () -> Unit = {}
+    navController: NavHostController
 ) {
     var otp by remember { mutableStateOf("") }
     var timeLeft by remember { mutableStateOf(300) } // 5 minutes in seconds
@@ -39,10 +41,9 @@ fun OtpScreen(
         }
     }
 
-    // Handle OTP verification success
     LaunchedEffect(otpUiState) {
         if (otpUiState is BaseUiState.Success && otpUiState.data != null) {
-            onVerificationSuccess()
+            navController.navigate(LoginScreenNav)
         }
     }
 
