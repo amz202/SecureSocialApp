@@ -1,5 +1,9 @@
 package com.example.securesocialapp.ui.viewModel
 
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -10,6 +14,7 @@ import com.example.securesocialapp.SecureSocialApplication
 import com.example.securesocialapp.data.datastore.UserPreferences
 import com.example.securesocialapp.data.model.request.PostRequest
 import com.example.securesocialapp.data.repository.PostRepository
+import com.example.securesocialapp.ui.screen.PostTag
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -22,13 +27,16 @@ class PostViewModel(
     private val postRepository: PostRepository
 ): ViewModel() {
 
-    var postsUiState: PostsUiState = BaseUiState.Loading
+    var postsUiState: PostsUiState by mutableStateOf(BaseUiState.Loading)
         private set
 
-    var postUiState: PostUiState = BaseUiState.Loading
+    var postUiState: PostUiState by mutableStateOf(BaseUiState.Loading)
         private set
 
-    var likeUiState: LikeUiState = BaseUiState.Success(Unit)
+    var likeUiState: LikeUiState by mutableStateOf(BaseUiState.Success(Unit))
+        private set
+
+    var currentTag: PostTag? by mutableStateOf(null)
         private set
 
     private val _posts = MutableStateFlow<List<PostResponse>>(emptyList())
@@ -43,6 +51,9 @@ class PostViewModel(
     private val _usersPosts = MutableStateFlow<List<PostResponse>>(emptyList())
     val usersPosts: StateFlow<List<PostResponse>> = _usersPosts
 
+    init {
+        getAllPosts()
+    }
 
     fun getAllPosts() {
         viewModelScope.launch {
@@ -51,8 +62,10 @@ class PostViewModel(
                 val response = postRepository.getAllPosts()
                 _posts.value = response
                 postsUiState = BaseUiState.Success(response)
+                Log.d("PostViewModel", "Fetched posts: $response")
             } catch (e: Exception) {
                 postsUiState = BaseUiState.Error
+                Log.e("PostViewModel", "Error fetching posts", e)
             }
         }
     }
@@ -92,6 +105,16 @@ class PostViewModel(
             } catch (e: Exception) {
                 postsUiState = BaseUiState.Error
             }
+        }
+    }
+
+    fun toggleTag(tag: PostTag?) {
+        currentTag = tag // Update the UI state immediately
+
+        if (tag == null) {
+            getAllPosts()
+        } else {
+            getPostsByTag(tag.name)
         }
     }
 

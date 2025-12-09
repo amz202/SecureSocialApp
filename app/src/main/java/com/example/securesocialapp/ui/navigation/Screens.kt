@@ -14,4 +14,4 @@ data class OtpScreenNav(
 )
 
 @Serializable
-object HomeScreenNav
+object PostsScreenNav
