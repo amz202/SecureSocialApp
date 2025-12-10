@@ -15,3 +15,6 @@ data class OtpScreenNav(
 
 @Serializable
 object PostsScreenNav
+
+@Serializable
+object ActivityLogScreenNav

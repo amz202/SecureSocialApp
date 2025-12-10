@@ -18,6 +18,7 @@ import com.example.securesocialapp.data.datastore.UserPreferences
 import com.example.securesocialapp.ui.navigation.AppNavigation
 import com.example.securesocialapp.ui.theme.SecureSocialAppTheme
 import com.example.securesocialapp.ui.viewModel.AuthViewModel
+import com.example.securesocialapp.ui.viewModel.NavigationViewModel
 import com.example.securesocialapp.ui.viewModel.PostViewModel
 
 class MainActivity : ComponentActivity() {
@@ -27,10 +28,11 @@ class MainActivity : ComponentActivity() {
         val userPreferences = UserPreferences(this)
         val authViewModel: AuthViewModel = ViewModelProvider(this, AuthViewModel.authFactory)[AuthViewModel::class.java]
         val postViewModel: PostViewModel = ViewModelProvider(this, PostViewModel.postFactory)[PostViewModel::class.java]
+        val navigationViewModel: NavigationViewModel = ViewModelProvider(this)[NavigationViewModel::class.java]
         enableEdgeToEdge()
         setContent {
             SecureSocialAppTheme {
-                AppNavigation(authViewModel, postViewModel)
+                AppNavigation(authViewModel, postViewModel, navigationViewModel )
             }
         }
     }

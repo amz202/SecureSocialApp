@@ -27,10 +27,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.securesocial.data.model.response.PostResponse
+import com.example.securesocialapp.ui.navigation.ActivityLogScreenNav
+import com.example.securesocialapp.ui.navigation.PostsScreenNav
 import com.example.securesocialapp.ui.navigation.navbar.bottomNavItems
 import com.example.securesocialapp.ui.screen.common.ErrorScreen
 import com.example.securesocialapp.ui.screen.common.LoadingScreen
 import com.example.securesocialapp.ui.viewModel.BaseUiState
+import com.example.securesocialapp.ui.viewModel.NavigationViewModel
 import com.example.securesocialapp.ui.viewModel.PostViewModel
 import com.example.securesocialapp.ui.viewModel.PostsUiState
 import kotlin.toString
@@ -45,6 +48,7 @@ fun PostsScreen(
     postsUiState: PostsUiState,
     navController: NavHostController,
     postViewModel: PostViewModel = viewModel(factory = PostViewModel.postFactory),
+    navigationViewModel: NavigationViewModel
 ) {
     LaunchedEffect(Unit) {
         postViewModel.getAllPosts()
@@ -55,6 +59,7 @@ fun PostsScreen(
             posts = postsUiState.data,
             navController = navController,
             postViewModel = postViewModel,
+            navigationViewModel = navigationViewModel
         )
         is BaseUiState.Loading -> LoadingScreen()
         is BaseUiState.Error -> ErrorScreen(
@@ -72,11 +77,12 @@ fun PostsList(
     posts: List<PostResponse>,
     navController: NavHostController,
     postViewModel: PostViewModel,
+    navigationViewModel: NavigationViewModel
 ) {
     val selectedTag = postViewModel.currentTag
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val items = bottomNavItems
-    var selectedItemIndex by remember { mutableIntStateOf(0) }
+    val selectedItemIndex = navigationViewModel.selectedItemIndex
 
     Scaffold(
         containerColor = Color.White,
@@ -105,11 +111,19 @@ fun PostsList(
             NavigationBar {
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        selected = selectedItemIndex == index,
-                        onClick = { selectedItemIndex = index },
+                        selected = selectedItemIndex.value == index,
+                        onClick = {
+                            navigationViewModel.updateSelectedItemIndex(index)
+                            when (item.title) {
+                                "Posts" -> navController.navigate(PostsScreenNav)
+                                "Activity Log" -> navController.navigate(ActivityLogScreenNav)
+//                                "Clubs" -> navController.navigate(ClubScreenNav)
+                            }
+
+                        },
                         icon = {
                             Icon(
-                                imageVector = if (index == selectedItemIndex) {
+                                imageVector = if (index == selectedItemIndex.value) {
                                     item.selectedIcon
                                 } else {
                                     item.unselectedIcon

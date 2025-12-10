@@ -13,6 +13,8 @@ import com.example.securesocial.data.model.response.PostResponse
 import com.example.securesocialapp.SecureSocialApplication
 import com.example.securesocialapp.data.datastore.UserPreferences
 import com.example.securesocialapp.data.model.request.PostRequest
+import com.example.securesocialapp.data.model.response.ActivityLog
+import com.example.securesocialapp.data.repository.DashRepository
 import com.example.securesocialapp.data.repository.PostRepository
 import com.example.securesocialapp.ui.screen.PostTag
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,9 +24,11 @@ import kotlinx.coroutines.launch
 typealias PostsUiState = BaseUiState<List<PostResponse>>
 typealias PostUiState = BaseUiState<PostResponse>
 typealias LikeUiState = BaseUiState<Unit>
+typealias ActivityUiState = BaseUiState<List<ActivityLog>>
 
 class PostViewModel(
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    private val dashRepository: DashRepository
 ): ViewModel() {
 
     var postsUiState: PostsUiState by mutableStateOf(BaseUiState.Loading)
@@ -34,6 +38,9 @@ class PostViewModel(
         private set
 
     var likeUiState: LikeUiState by mutableStateOf(BaseUiState.Success(Unit))
+        private set
+
+    var activityUiState: ActivityUiState by mutableStateOf(BaseUiState.Loading)
         private set
 
     var currentTag: PostTag? by mutableStateOf(null)
@@ -53,6 +60,7 @@ class PostViewModel(
 
     init {
         getAllPosts()
+        getActivityLog()
     }
 
     fun getAllPosts() {
@@ -144,12 +152,25 @@ class PostViewModel(
         }
     }
 
+    fun getActivityLog() {
+        viewModelScope.launch {
+            activityUiState = BaseUiState.Loading
+            try {
+                val response = dashRepository.getActivityLog()
+                activityUiState = BaseUiState.Success(response)
+            } catch (e: Exception) {
+                activityUiState = BaseUiState.Error
+                Log.e("PostViewModel", "Error fetching activity log", e)
+            }
+        }
+    }
+
     companion object {
         val postFactory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val app =
                     this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as SecureSocialApplication
-                PostViewModel(app.container.postRepository)
+                PostViewModel(app.container.postRepository, app.container.dashRepository)
             }
         }
     }

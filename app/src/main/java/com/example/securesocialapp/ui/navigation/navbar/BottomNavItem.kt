@@ -22,12 +22,12 @@ data class BottomNavItem(
 
 val bottomNavItems = listOf(
     BottomNavItem(
-        title = "Home",
+        title = "Posts",
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home,
     ),
     BottomNavItem(
-        title = "History",
+        title = "Activity Log",
         selectedIcon = Icons.Filled.History,
         unselectedIcon = Icons.Outlined.History,
     ),

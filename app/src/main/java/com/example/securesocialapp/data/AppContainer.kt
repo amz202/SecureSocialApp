@@ -4,6 +4,8 @@ import android.content.Context
 import com.example.securesocialapp.data.datastore.UserPreferences
 import com.example.securesocialapp.data.repository.AuthRepository
 import com.example.securesocialapp.data.repository.AuthRepositoryImpl
+import com.example.securesocialapp.data.repository.DashRepository
+import com.example.securesocialapp.data.repository.DashRepositoryImpl
 import com.example.securesocialapp.data.repository.PostRepository
 import com.example.securesocialapp.data.repository.PostRepositoryImpl
 import com.example.securesocialapp.network.ApiService
@@ -19,6 +21,8 @@ import retrofit2.Retrofit
 interface AppContainer{
     val postRepository: PostRepository
     val authRepository: AuthRepository
+
+    val dashRepository: DashRepository
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
@@ -64,5 +68,8 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     }
     override val authRepository: AuthRepository by lazy {
         AuthRepositoryImpl(apiService)
+    }
+    override val dashRepository: DashRepository by lazy{
+        DashRepositoryImpl(apiService)
     }
 }
