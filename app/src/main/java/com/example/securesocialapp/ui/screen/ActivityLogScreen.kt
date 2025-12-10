@@ -25,6 +25,7 @@ import androidx.navigation.NavHostController
 import com.example.securesocialapp.data.model.response.ActivityLog
 import com.example.securesocialapp.data.model.response.LogType
 import com.example.securesocialapp.ui.navigation.ActivityLogScreenNav
+import com.example.securesocialapp.ui.navigation.MyPostsScreenNav
 import com.example.securesocialapp.ui.navigation.PostsScreenNav
 import com.example.securesocialapp.ui.navigation.navbar.bottomNavItems
 import com.example.securesocialapp.ui.screen.common.ErrorScreen
@@ -99,7 +100,7 @@ fun ActivityLogList(
                             when (item.title) {
                                 "Posts" -> navController.navigate(PostsScreenNav)
                                 "Activity Log" -> navController.navigate(ActivityLogScreenNav)
-//                                "Clubs" -> navController.navigate(ClubScreenNav)
+                                "My Posts" -> navController.navigate(MyPostsScreenNav)
                             }
 
                         },
@@ -202,16 +203,6 @@ fun ActivityLogItem(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-
-                if (!log.details.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = log.details ?: "",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.width(8.dp))

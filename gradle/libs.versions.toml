@@ -30,6 +30,7 @@ media3CommonKtx = "1.8.0"
 datastorePreferences = "1.1.3"
 kotlinxSerializationJsonVersion = "1.6.0"
 uiGraphics = "1.10.0"
+foundation = "1.10.0"
 
 
 [libraries]
@@ -75,6 +76,7 @@ navigation-compose = { module = "androidx.navigation:navigation-compose", versio
 androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 
 [plugins]

@@ -28,10 +28,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.securesocial.data.model.response.PostResponse
 import com.example.securesocialapp.ui.navigation.ActivityLogScreenNav
+import com.example.securesocialapp.ui.navigation.CreatePostScreenNav
+import com.example.securesocialapp.ui.navigation.MyPostsScreenNav
+import com.example.securesocialapp.ui.navigation.PostDetailsScreenNav
 import com.example.securesocialapp.ui.navigation.PostsScreenNav
 import com.example.securesocialapp.ui.navigation.navbar.bottomNavItems
 import com.example.securesocialapp.ui.screen.common.ErrorScreen
 import com.example.securesocialapp.ui.screen.common.LoadingScreen
+import com.example.securesocialapp.ui.screen.common.formatConciseTime
 import com.example.securesocialapp.ui.viewModel.BaseUiState
 import com.example.securesocialapp.ui.viewModel.NavigationViewModel
 import com.example.securesocialapp.ui.viewModel.PostViewModel
@@ -88,7 +92,7 @@ fun PostsList(
         containerColor = Color.White,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {},
+                onClick = {navController.navigate(CreatePostScreenNav)},
                 modifier = Modifier.padding(16.dp)
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Create Post")
@@ -117,7 +121,7 @@ fun PostsList(
                             when (item.title) {
                                 "Posts" -> navController.navigate(PostsScreenNav)
                                 "Activity Log" -> navController.navigate(ActivityLogScreenNav)
-//                                "Clubs" -> navController.navigate(ClubScreenNav)
+                                "My Posts" -> navController.navigate(MyPostsScreenNav)
                             }
 
                         },
@@ -147,21 +151,44 @@ fun PostsList(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {
+                    val isSelected = selectedTag == null
                     FilterChip(
-                        selected = selectedTag == null,
-                        onClick = {
-                            postViewModel.toggleTag(null)
-                        },
-                        label = { Text("All") }
+                        selected = isSelected,
+                        onClick = { postViewModel.toggleTag(null) },
+                        label = { Text("All") },
+                        border = FilterChipDefaults.filterChipBorder(
+                            borderColor = Color.Transparent,
+                            enabled = true,
+                            selected = isSelected
+                        ),
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = Color(0xFFF5F5F5), // Light Grey (Unselected)
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer, // Primary (Selected)
+                            labelColor = Color.Black,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        shape = RoundedCornerShape(50) // Fully rounded
                     )
                 }
+
                 items(PostTag.entries.toTypedArray()) { tag ->
+                    val isSelected = selectedTag == tag
                     FilterChip(
-                        selected = selectedTag == tag,
-                        onClick = {
-                            postViewModel.toggleTag(tag)
-                        },
-                        label = { Text(tag.name) }
+                        selected = isSelected,
+                        onClick = { postViewModel.toggleTag(tag) },
+                        label = { Text(tag.name) },
+                        border = FilterChipDefaults.filterChipBorder(
+                            borderColor = Color.Transparent,
+                            enabled = true,
+                            selected = isSelected
+                        ),
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = Color(0xFFF5F5F5),
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            labelColor = Color.Black,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        shape = RoundedCornerShape(50)
                     )
                 }
             }
@@ -175,7 +202,7 @@ fun PostsList(
                     PostItem(
                         post = post,
                         modifier = Modifier.padding(bottom = 16.dp),
-                        onClick = { /* Navigate to post detail */ }
+                        onClick = {navController.navigate(PostDetailsScreenNav(post.id))}
                     )
                 }
             }
@@ -183,6 +210,7 @@ fun PostsList(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostItem(
@@ -191,12 +219,11 @@ fun PostItem(
     onClick: () -> Unit
 ) {
     ElevatedCard(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         onClick = onClick,
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surface, // Ensure distinct background
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
@@ -205,7 +232,6 @@ fun PostItem(
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
-            // Header Row: Title and Tag.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -219,13 +245,12 @@ fun PostItem(
                     modifier = Modifier.weight(1f).padding(end = 8.dp)
                 )
 
-                // Custom sleek tag badge instead of the bulky AssistChip
                 Surface(
-                    shape = RoundedCornerShape(50), // pill shape
+                    shape = RoundedCornerShape(50),
                     color = MaterialTheme.colorScheme.primaryContainer,
                 ) {
                     Text(
-                        text = post.tag.uppercase(), // Uppercase often looks tidier for short tags
+                        text = post.tag.uppercase(),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -236,7 +261,6 @@ fun PostItem(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Content text: Use onSurfaceVariant for a slightly softer text color relative to the title
             Text(
                 text = post.content,
                 style = MaterialTheme.typography.bodyMedium,
@@ -247,51 +271,62 @@ fun PostItem(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Bottom Row: Stats only
+            // --- BOTTOM ROW (Time & Stats) ---
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End, // Push stats to the end
+                // Pushes Time to start (Left) and Stats to end (Right)
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Likes
+                // 1. TIME (Bottom Left)
+                Text(
+                    text = formatConciseTime(post.createdAt), // <--- UPDATED HERE
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline // Light grey text
+                )
+
+                // 2. STATS (Bottom Right)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(16.dp) // Space between Likes and Views
                 ) {
+                    // Likes
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        val likeColor = Color(0xFFE91E63)
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Likes",
+                            modifier = Modifier.size(18.dp),
+                            tint = likeColor
+                        )
+                        Text(
+                            text = post.likeCount.toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = likeColor
+                        )
+                    }
 
-                    val likeColor = Color(0xFFE91E63) // A nice Material Pink/Red color
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = "Likes",
-                        modifier = Modifier.size(18.dp), // Slightly larger icon
-                        tint = likeColor
-                    )
-                    Text(
-                        text = post.likeCount.toString(),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = likeColor // Match text color to icon
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                // Views
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Visibility,
-                        contentDescription = "Views",
-                        modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = post.viewCount.toString(),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    // Views
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Visibility,
+                            contentDescription = "Views",
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = post.viewCount.toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
@@ -299,23 +334,23 @@ fun PostItem(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun PostItemPreview() {
-    MaterialTheme {
-        PostItem(
-            post = PostResponse(
-                id = "1",
-                title = "Sample Post Title",
-                content = "This is a sample post content that demonstrates how the post item looks in the UI. It can be longer to show how text wraps.",
-                tag = "TECH",
-                createdAt = System.currentTimeMillis(),
-                authorId = "user123",
-                likeCount = 42,
-                viewCount = 156
-            ),
-            modifier = Modifier.padding(16.dp),
-            onClick = { }
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PostItemPreview() {
+//    MaterialTheme {
+//        PostItem(
+//            post = PostResponse(
+//                id = "1",
+//                title = "Sample Post Title",
+//                content = "This is a sample post content that demonstrates how the post item looks in the UI. It can be longer to show how text wraps.",
+//                tag = "TECH",
+//                createdAt = System.currentTimeMillis(),
+//                authorId = "user123",
+//                likeCount = 42,
+//                viewCount = 156
+//            ),
+//            modifier = Modifier.padding(16.dp),
+//            onClick = { }
+//        )
+//    }
+//}

@@ -10,7 +10,7 @@ data class PostResponse(
     val content: String,
     val tag: String,
     val createdAt: Long,
-    val authorId: String,
+    val authorName: String,
     val likeCount: Long,
     val viewCount: Long
 )

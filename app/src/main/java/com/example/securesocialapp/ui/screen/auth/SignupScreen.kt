@@ -1,17 +1,23 @@
 package com.example.securesocialapp.ui.screen.auth
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -43,12 +49,15 @@ fun SignupScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
+    // Helpers
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
     var usernameCheckJob by remember { mutableStateOf<Job?>(null) }
 
     val usernameUiState = authViewModel.usernameUiState
     val registerUiState = authViewModel.registerUiState
+
+    // Validation
     val passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{9,}$".toRegex()
     val isPasswordValid = password.matches(passwordRegex)
 
@@ -80,13 +89,25 @@ fun SignupScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Create Account",
-            style = MaterialTheme.typography.headlineMedium
+            text = "SecureSocial",
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "Create an account",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.secondary,
+            fontWeight = FontWeight.Normal
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -98,46 +119,31 @@ fun SignupScreen(
             label = { Text("Username") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = { focusManager.moveFocus(FocusDirection.Down) }
-            ),
+            shape = RoundedCornerShape(12.dp),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
             trailingIcon = {
-                when {
-                    isUsernameChecking -> CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        strokeWidth = 2.dp
-                    )
-                    isUsernameAvailable == true -> Icon(
-                        imageVector = Icons.Default.Visibility,
-                        contentDescription = "Available",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    isUsernameAvailable == false -> Icon(
-                        imageVector = Icons.Default.VisibilityOff,
-                        contentDescription = "Taken",
-                        tint = MaterialTheme.colorScheme.error
-                    )
+                if (username.isNotBlank()) {
+                    when {
+                        isUsernameChecking -> CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                        isUsernameAvailable == true -> Icon(Icons.Default.CheckCircle, "Available", tint = MaterialTheme.colorScheme.primary)
+                        isUsernameAvailable == false -> Icon(Icons.Default.Warning, "Taken", tint = MaterialTheme.colorScheme.error)
+                    }
                 }
             },
             supportingText = {
-                when {
-                    isUsernameAvailable == false -> Text(
-                        "Username is already taken",
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    isUsernameAvailable == true -> Text(
-                        "Username is available",
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                if (username.isNotBlank()) {
+                    when (isUsernameAvailable) {
+                        false -> Text("Username is already taken", color = MaterialTheme.colorScheme.error)
+                        true -> Text("Username is available", color = MaterialTheme.colorScheme.primary)
+                        else -> {}
+                    }
                 }
             },
-            isError = isUsernameAvailable == false
+            isError = username.isNotBlank() && isUsernameAvailable == false
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Email field
         OutlinedTextField(
@@ -146,13 +152,9 @@ fun SignupScreen(
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = { focusManager.moveFocus(FocusDirection.Down) }
-            )
+            shape = RoundedCornerShape(12.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -164,19 +166,16 @@ fun SignupScreen(
             label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
+            shape = RoundedCornerShape(12.dp),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = { focusManager.moveFocus(FocusDirection.Down) }
-            ),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
                         imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                        contentDescription = "Toggle Password"
                     )
                 }
             },
@@ -184,14 +183,14 @@ fun SignupScreen(
             supportingText = {
                 if (password.isNotBlank() && !isPasswordValid) {
                     Text(
-                        "Password must be 9+ characters with uppercase, lowercase, and number",
+                        "Must be 9+ chars, 1 Upper, 1 Lower, 1 Digit",
                         color = MaterialTheme.colorScheme.error
                     )
                 }
             }
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Confirm Password field
         OutlinedTextField(
@@ -200,29 +199,23 @@ fun SignupScreen(
             label = { Text("Confirm Password") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
+            shape = RoundedCornerShape(12.dp),
             visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { focusManager.clearFocus() }
-            ),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+
             trailingIcon = {
                 IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
                     Icon(
                         imageVector = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password"
+                        contentDescription = "Toggle Password"
                     )
                 }
             },
             isError = confirmPassword.isNotBlank() && password != confirmPassword,
             supportingText = {
                 if (confirmPassword.isNotBlank() && password != confirmPassword) {
-                    Text(
-                        "Passwords do not match",
-                        color = MaterialTheme.colorScheme.error
-                    )
+                    Text("Passwords do not match", color = MaterialTheme.colorScheme.error)
                 }
             }
         )
@@ -242,7 +235,10 @@ fun SignupScreen(
             onClick = {
                 authViewModel.register(RegisterRequest(username, email, password))
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            shape = RoundedCornerShape(12.dp),
             enabled = username.isNotBlank() &&
                     email.isNotBlank() &&
                     password.isNotBlank() &&
@@ -255,26 +251,35 @@ fun SignupScreen(
             if (registerUiState is BaseUiState.Loading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    strokeWidth = 2.dp
                 )
             } else {
-                Text("Sign Up")
+                Text(
+                    text = "Sign Up",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Already have an account?",
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             TextButton(onClick = {
                 navController.navigate(LoginScreenNav)
             }) {
-                Text("Login")
+                Text(
+                    text = "Login",
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

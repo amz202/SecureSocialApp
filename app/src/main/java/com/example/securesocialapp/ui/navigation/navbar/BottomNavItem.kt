@@ -32,7 +32,7 @@ val bottomNavItems = listOf(
         unselectedIcon = Icons.Outlined.History,
     ),
     BottomNavItem(
-        title = "User",
+        title = "My Posts",
         selectedIcon = Icons.Filled.PersonPin,
         unselectedIcon = Icons.Outlined.PersonPin,
     )

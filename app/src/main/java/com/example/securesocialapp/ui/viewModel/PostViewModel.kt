@@ -11,7 +11,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.securesocial.data.model.response.PostResponse
 import com.example.securesocialapp.SecureSocialApplication
-import com.example.securesocialapp.data.datastore.UserPreferences
 import com.example.securesocialapp.data.model.request.PostRequest
 import com.example.securesocialapp.data.model.response.ActivityLog
 import com.example.securesocialapp.data.repository.DashRepository
@@ -37,6 +36,11 @@ class PostViewModel(
     var postUiState: PostUiState by mutableStateOf(BaseUiState.Loading)
         private set
 
+    var myPostsUiState: PostsUiState by mutableStateOf(BaseUiState.Loading)
+        private set
+
+    var createPostUiState: BaseUiState<PostResponse?> by mutableStateOf(BaseUiState.Success(null)) // Idle is new, or use Loading/Success
+        private set
     var likeUiState: LikeUiState by mutableStateOf(BaseUiState.Success(Unit))
         private set
 
@@ -46,21 +50,13 @@ class PostViewModel(
     var currentTag: PostTag? by mutableStateOf(null)
         private set
 
-    private val _posts = MutableStateFlow<List<PostResponse>>(emptyList())
-    val posts: StateFlow<List<PostResponse>> = _posts
-
     private val _post = MutableStateFlow<PostResponse?>(null)
     val post: StateFlow<PostResponse?> = _post
-
-    private val _postsByTag = MutableStateFlow<List<PostResponse>>(emptyList())
-    val postsByTag: StateFlow<List<PostResponse>> = _postsByTag
-
-    private val _usersPosts = MutableStateFlow<List<PostResponse>>(emptyList())
-    val usersPosts: StateFlow<List<PostResponse>> = _usersPosts
 
     init {
         getAllPosts()
         getActivityLog()
+        getMyPosts()
     }
 
     fun getAllPosts() {
@@ -68,7 +64,6 @@ class PostViewModel(
             postsUiState = BaseUiState.Loading
             try {
                 val response = postRepository.getAllPosts()
-                _posts.value = response
                 postsUiState = BaseUiState.Success(response)
                 Log.d("PostViewModel", "Fetched posts: $response")
             } catch (e: Exception) {
@@ -83,6 +78,8 @@ class PostViewModel(
             likeUiState = BaseUiState.Loading
             try {
                 postRepository.likePost(postId)
+                val response = postRepository.getPost(postId)
+                _post.value = response
                 likeUiState = BaseUiState.Success(Unit)
             } catch (e: Exception) {
                 likeUiState = BaseUiState.Error
@@ -108,7 +105,6 @@ class PostViewModel(
             postsUiState = BaseUiState.Loading
             try {
                 val response = postRepository.getPostsByTag(tagName)
-                _postsByTag.value = response
                 postsUiState = BaseUiState.Success(response)
             } catch (e: Exception) {
                 postsUiState = BaseUiState.Error
@@ -126,28 +122,31 @@ class PostViewModel(
         }
     }
 
-    fun createPost(post: PostRequest){
+    fun createPost(title: String, content: String, tag: PostTag) {
         viewModelScope.launch {
-            postUiState = BaseUiState.Loading
+            createPostUiState = BaseUiState.Loading
             try {
-                val response = postRepository.createPost(post)
-                _post.value = response
-                postUiState = BaseUiState.Success(response)
+                val request = PostRequest(
+                    title = title,
+                    content = content,
+                    tag = tag.name
+                )
+                val response = postRepository.createPost(request)
+                createPostUiState = BaseUiState.Success(response)
             } catch (e: Exception) {
-                postUiState = BaseUiState.Error
+                createPostUiState = BaseUiState.Error
             }
         }
     }
 
     fun getMyPosts() {
         viewModelScope.launch {
-            postsUiState = BaseUiState.Loading
+            myPostsUiState = BaseUiState.Loading
             try {
                 val response = postRepository.getMyPosts()
-                _usersPosts.value = response
-                postsUiState = BaseUiState.Success(response)
+                myPostsUiState = BaseUiState.Success(response)
              } catch (e: Exception) {
-                postsUiState = BaseUiState.Error
+                myPostsUiState = BaseUiState.Error
             }
         }
     }
@@ -163,6 +162,10 @@ class PostViewModel(
                 Log.e("PostViewModel", "Error fetching activity log", e)
             }
         }
+    }
+
+    fun resetCreatePostState() {
+        createPostUiState = BaseUiState.Success(null)
     }
 
     companion object {
