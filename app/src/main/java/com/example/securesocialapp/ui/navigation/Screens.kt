@@ -18,3 +18,14 @@ object PostsScreenNav
 
 @Serializable
 object ActivityLogScreenNav
+
+@Serializable
+object MyPostsScreenNav
+
+@Serializable
+data class PostDetailsScreenNav(
+    val postId: String
+)
+
+@Serializable
+object CreatePostScreenNav

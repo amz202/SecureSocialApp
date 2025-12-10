@@ -18,9 +18,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.securesocialapp.ui.screen.ActivityLogScreen
+import com.example.securesocialapp.ui.screen.MyPostsScreen
 import com.example.securesocialapp.ui.screen.PostsScreen
 import com.example.securesocialapp.ui.screen.auth.LoginScreen
 import com.example.securesocialapp.ui.screen.auth.OtpScreen
+import com.example.securesocialapp.ui.screen.create.CreatePostScreen
+import com.example.securesocialapp.ui.screen.detail.PostDetailScreen
 import com.example.securesocialapp.ui.viewModel.NavigationViewModel
 import com.example.securesocialapp.ui.viewModel.PostViewModel
 
@@ -75,6 +78,31 @@ fun AppNavigation(
                 viewModel = postViewModel,
                 navigationViewModel = navigationViewModel,
                 activityUiState = postViewModel.activityUiState
+            )
+        }
+
+        composable<MyPostsScreenNav> {
+            MyPostsScreen(
+                navController = navController,
+                postViewModel = postViewModel,
+                postsUiState = postViewModel.myPostsUiState,
+                navigationViewModel = navigationViewModel
+            )
+        }
+
+        composable<PostDetailsScreenNav> {
+            val args = it.toRoute<PostDetailsScreenNav>()
+            PostDetailScreen(
+                postId = args.postId,
+                navController = navController,
+                postViewModel = postViewModel
+            )
+        }
+
+        composable<CreatePostScreenNav> {
+            CreatePostScreen(
+                navController = navController,
+                postViewModel = postViewModel
             )
         }
     }
