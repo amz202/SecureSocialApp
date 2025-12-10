@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SecureSocialAppTheme {
-                AppNavigation(authViewModel, postViewModel, navigationViewModel )
+                AppNavigation(authViewModel, postViewModel, navigationViewModel , userPreferences)
             }
         }
     }

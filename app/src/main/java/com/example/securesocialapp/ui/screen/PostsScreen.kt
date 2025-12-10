@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
@@ -27,8 +28,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.securesocial.data.model.response.PostResponse
+import com.example.securesocialapp.data.datastore.UserPreferences
 import com.example.securesocialapp.ui.navigation.ActivityLogScreenNav
 import com.example.securesocialapp.ui.navigation.CreatePostScreenNav
+import com.example.securesocialapp.ui.navigation.LoginScreenNav
 import com.example.securesocialapp.ui.navigation.MyPostsScreenNav
 import com.example.securesocialapp.ui.navigation.PostDetailsScreenNav
 import com.example.securesocialapp.ui.navigation.PostsScreenNav
@@ -36,10 +39,14 @@ import com.example.securesocialapp.ui.navigation.navbar.bottomNavItems
 import com.example.securesocialapp.ui.screen.common.ErrorScreen
 import com.example.securesocialapp.ui.screen.common.LoadingScreen
 import com.example.securesocialapp.ui.screen.common.formatConciseTime
+import com.example.securesocialapp.ui.viewModel.AuthViewModel
 import com.example.securesocialapp.ui.viewModel.BaseUiState
 import com.example.securesocialapp.ui.viewModel.NavigationViewModel
 import com.example.securesocialapp.ui.viewModel.PostViewModel
 import com.example.securesocialapp.ui.viewModel.PostsUiState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.toString
 
 enum class PostTag {
@@ -51,8 +58,10 @@ enum class PostTag {
 fun PostsScreen(
     postsUiState: PostsUiState,
     navController: NavHostController,
-    postViewModel: PostViewModel = viewModel(factory = PostViewModel.postFactory),
-    navigationViewModel: NavigationViewModel
+    postViewModel: PostViewModel,
+    navigationViewModel: NavigationViewModel,
+    userPreferences: UserPreferences,
+    authViewModel: AuthViewModel
 ) {
     LaunchedEffect(Unit) {
         postViewModel.getAllPosts()
@@ -63,7 +72,9 @@ fun PostsScreen(
             posts = postsUiState.data,
             navController = navController,
             postViewModel = postViewModel,
-            navigationViewModel = navigationViewModel
+            navigationViewModel = navigationViewModel,
+            userPreferences = userPreferences,
+            authViewModel = authViewModel
         )
         is BaseUiState.Loading -> LoadingScreen()
         is BaseUiState.Error -> ErrorScreen(
@@ -81,7 +92,9 @@ fun PostsList(
     posts: List<PostResponse>,
     navController: NavHostController,
     postViewModel: PostViewModel,
-    navigationViewModel: NavigationViewModel
+    navigationViewModel: NavigationViewModel,
+    userPreferences: UserPreferences,
+    authViewModel: AuthViewModel
 ) {
     val selectedTag = postViewModel.currentTag
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -108,6 +121,30 @@ fun PostsList(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 20.sp,
                     )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                navController.navigate(LoginScreenNav) {
+                                    popUpTo(0) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                }
+                                authViewModel.resetLoginState()
+                                userPreferences.clear()
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = "Sign Out"
+                        )
+                    }
+                },
+                actions = {
+                    Box(modifier = Modifier.width(32.dp)) { }
                 }
             )
         },

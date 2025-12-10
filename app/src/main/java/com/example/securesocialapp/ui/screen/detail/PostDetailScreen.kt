@@ -79,12 +79,27 @@ fun PostDetailScreen(
 @Composable
 fun PostDetailTopBar(onBackClick: () -> Unit) {
     TopAppBar(
-        title = { Text("Post Details", fontSize = 18.sp, fontWeight = FontWeight.SemiBold) },
+        title = {
+            Text(
+                "Post Details",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        },
         navigationIcon = {
             IconButton(onClick = onBackClick) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = "Back"
+                )
             }
-        }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary, // Darker background
+            titleContentColor = MaterialTheme.colorScheme.onPrimary, // White text
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary, // White arrow
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+        )
     )
 }
 
