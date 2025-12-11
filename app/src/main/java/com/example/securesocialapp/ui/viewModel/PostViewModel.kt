@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.securesocial.data.model.response.PostLikesResponse
 import com.example.securesocial.data.model.response.PostResponse
 import com.example.securesocialapp.SecureSocialApplication
 import com.example.securesocialapp.data.model.request.PostRequest
@@ -24,6 +25,7 @@ typealias PostsUiState = BaseUiState<List<PostResponse>>
 typealias PostUiState = BaseUiState<PostResponse>
 typealias LikeUiState = BaseUiState<Unit>
 typealias ActivityUiState = BaseUiState<List<ActivityLog>>
+typealias PostLikesUiState = BaseUiState<List<PostLikesResponse>>
 
 class PostViewModel(
     private val postRepository: PostRepository,
@@ -45,6 +47,9 @@ class PostViewModel(
         private set
 
     var activityUiState: ActivityUiState by mutableStateOf(BaseUiState.Loading)
+        private set
+
+    var postLikesUiState: PostLikesUiState by mutableStateOf(BaseUiState.Loading)
         private set
 
     var currentTag: PostTag? by mutableStateOf(null)
@@ -164,6 +169,21 @@ class PostViewModel(
         }
     }
 
+    fun getPostLikes(postId: String) {
+        viewModelScope.launch {
+            postLikesUiState = BaseUiState.Loading
+            try {
+                val response = postRepository.getPostLikes(postId)
+                postLikesUiState = BaseUiState.Success(response)
+            } catch (e: Exception) {
+                postLikesUiState = BaseUiState.Error
+            }
+        }
+    }
+
+    fun resetPostLikesState() {
+        postLikesUiState = BaseUiState.Success(emptyList())
+    }
     fun resetCreatePostState() {
         createPostUiState = BaseUiState.Success(null)
     }

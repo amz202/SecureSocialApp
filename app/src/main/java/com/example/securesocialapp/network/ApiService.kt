@@ -1,4 +1,5 @@
 package com.example.securesocialapp.network
+import com.example.securesocial.data.model.response.PostLikesResponse
 import com.example.securesocial.data.model.response.PostResponse
 import com.example.securesocialapp.data.model.response.ActivityLog
 import com.example.securesocialapp.data.model.request.LoginRequest
@@ -56,6 +57,11 @@ interface ApiService {
 
     @GET("api/posts/myPosts")
     suspend fun getMyPosts(): List<PostResponse>
+
+    @GET("api/posts/{postId}/likes")
+    suspend fun getPostLikes(
+        @Path("postId") postId: String
+    ): List<PostLikesResponse>
 
     // Dashboard endpoints
     @GET("activity-log")

@@ -3,7 +3,9 @@ package com.example.securesocialapp.ui.screen.detail
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +35,9 @@ import androidx.navigation.NavHostController
 import com.example.securesocial.data.model.response.PostResponse
 import com.example.securesocialapp.ui.screen.common.ErrorScreen
 import com.example.securesocialapp.ui.screen.common.LoadingScreen
+import com.example.securesocialapp.ui.screen.dialog.PostLikesDialog
 import com.example.securesocialapp.ui.viewModel.BaseUiState
+import com.example.securesocialapp.ui.viewModel.NavigationViewModel
 import com.example.securesocialapp.ui.viewModel.PostViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -43,13 +48,27 @@ import java.util.Locale
 fun PostDetailScreen(
     postId: String,
     navController: NavHostController,
-    postViewModel: PostViewModel = viewModel(factory = PostViewModel.postFactory)
+    postViewModel: PostViewModel,
+    navigationViewModel: NavigationViewModel
 ) {
     LaunchedEffect(postId) {
         postViewModel.getPost(postId)
     }
 
     val uiState = postViewModel.postUiState
+    val showDialog by navigationViewModel.showPostLikesDialog.collectAsState()
+    val dialogPostId by navigationViewModel.postId.collectAsState()
+
+    if (showDialog) {
+        PostLikesDialog(
+            postId = dialogPostId,
+            onDismiss = {
+                navigationViewModel.hidePostLikesDialog()
+                postViewModel.resetPostLikesState()
+            },
+            postViewModel = postViewModel
+        )
+    }
 
     Scaffold(
         containerColor = Color.White,
@@ -68,7 +87,8 @@ fun PostDetailScreen(
                 is BaseUiState.Error -> ErrorScreen(onRetry = { postViewModel.getPost(postId) })
                 is BaseUiState.Success -> PostDetailContent(
                     post = postViewModel.post.collectAsState().value,
-                    onLikeClick = { postViewModel.likePost(postId) }
+                    onLikeClick = { postViewModel.likePost(postId) },
+                    onViewLikesClick = { navigationViewModel.showPostLikesDialog(postId) }
                 )
             }
         }
@@ -106,14 +126,15 @@ fun PostDetailTopBar(onBackClick: () -> Unit) {
 @Composable
 fun PostDetailContent(
     post: PostResponse?,
-    onLikeClick: () -> Unit
+    onLikeClick: () -> Unit,
+    onViewLikesClick: () -> Unit
 ) {
     if(post==null)return
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(20.dp)
+            .padding(top = 32.dp, start = 20.dp, end = 20.dp, bottom = 20.dp)
     ) {
 
         Row(
@@ -139,11 +160,11 @@ fun PostDetailContent(
             Text(
                 text = formatPostDate(post.createdAt),
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
+                color = Color.DarkGray
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Text(
             text = post.title,
@@ -153,7 +174,7 @@ fun PostDetailContent(
             lineHeight = 32.sp
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Surface(
@@ -171,7 +192,7 @@ fun PostDetailContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(28.dp))
 
         Text(
             text = post.content,
@@ -181,15 +202,15 @@ fun PostDetailContent(
             fontSize = 16.sp
         )
 
+        Spacer(modifier = Modifier.height(56.dp))
+
+        Divider(color = Color(0xFFD7D7D7))
+
         Spacer(modifier = Modifier.height(32.dp))
-
-        Divider(color = Color(0xFFEEEEEE))
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Like Button (Interactive)
@@ -197,8 +218,11 @@ fun PostDetailContent(
                 icon = Icons.Default.Favorite, // Use FavoriteBorder if not liked yet (needs logic)
                 count = post.likeCount.toInt(),
                 color = Color(0xFFE91E63), // Pink
-                onClick = onLikeClick
+                onClick = onLikeClick,
+                onTextClick = onViewLikesClick
             )
+
+            Spacer(modifier = Modifier.width(8.dp))
 
             // View Counter (Static)
             EngagementPill(
@@ -216,12 +240,13 @@ fun EngagementPill(
     icon: ImageVector,
     count: Int,
     color: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onTextClick: (() -> Unit)? = null
 ) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
-        color = color.copy(alpha = 0.08f), // Very light background of the same tint
+        color = color.copy(alpha = 0.08f),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
@@ -238,7 +263,10 @@ fun EngagementPill(
                 text = "$count",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = color
+                color = color,
+                modifier = Modifier.clickable(enabled = onTextClick != null) {
+                    onTextClick?.invoke()
+                }
             )
         }
     }

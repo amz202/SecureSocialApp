@@ -1,5 +1,6 @@
 package com.example.securesocialapp.data.repository
 
+import com.example.securesocial.data.model.response.PostLikesResponse
 import com.example.securesocial.data.model.response.PostResponse
 import com.example.securesocialapp.data.model.request.PostRequest
 import com.example.securesocialapp.network.ApiService
@@ -12,6 +13,7 @@ interface PostRepository{
     suspend fun getPostsByTag(tagName: String): List<PostResponse>
     suspend fun likePost(postId: String): ResponseBody
     suspend fun getMyPosts(): List<PostResponse>
+    suspend fun getPostLikes(postId: String): List<PostLikesResponse>
 }
 
 class PostRepositoryImpl(
@@ -39,5 +41,9 @@ class PostRepositoryImpl(
 
     override suspend fun getMyPosts(): List<PostResponse> {
         return apiService.getMyPosts()
+    }
+
+    override suspend fun getPostLikes(postId: String): List<PostLikesResponse> {
+        return apiService.getPostLikes(postId)
     }
 }

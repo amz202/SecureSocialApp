@@ -99,7 +99,8 @@ fun AppNavigation(
             PostDetailScreen(
                 postId = args.postId,
                 navController = navController,
-                postViewModel = postViewModel
+                postViewModel = postViewModel,
+                navigationViewModel = navigationViewModel
             )
         }
 
