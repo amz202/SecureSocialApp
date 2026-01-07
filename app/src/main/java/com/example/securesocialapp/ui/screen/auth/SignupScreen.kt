@@ -60,6 +60,9 @@ fun SignupScreen(
     // Validation
     val passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{9,}$".toRegex()
     val isPasswordValid = password.matches(passwordRegex)
+    val usernameRegex = "^[a-z0-9_]{5,}$".toRegex()
+    val isUsernameValid = username.matches(usernameRegex)
+
 
     LaunchedEffect(registerUiState) {
         if (registerUiState is BaseUiState.Success && registerUiState.data != null) {
@@ -71,7 +74,7 @@ fun SignupScreen(
     // Debounced username check
     LaunchedEffect(username) {
         usernameCheckJob?.cancel()
-        if (username.isNotBlank() && username.length >= 3) {
+        if (username.isNotBlank() && isUsernameValid) {
             usernameCheckJob = scope.launch {
                 delay(500)
                 authViewModel.checkUsername(username)
@@ -161,33 +164,34 @@ fun SignupScreen(
 
         // Password field
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
-
             trailingIcon = {
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(
-                        imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = "Toggle Password"
-                    )
+                if (username.isNotBlank()) {
+                    when {
+                        !isUsernameValid -> Icon(Icons.Default.Warning, "Invalid format", tint = MaterialTheme.colorScheme.error)
+                        isUsernameChecking -> CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                        isUsernameAvailable == true -> Icon(Icons.Default.CheckCircle, "Available", tint = MaterialTheme.colorScheme.primary)
+                        isUsernameAvailable == false -> Icon(Icons.Default.Warning, "Taken", tint = MaterialTheme.colorScheme.error)
+                    }
                 }
             },
-            isError = password.isNotBlank() && !isPasswordValid,
             supportingText = {
-                if (password.isNotBlank() && !isPasswordValid) {
-                    Text(
-                        "Must be 9+ chars, 1 Upper, 1 Lower, 1 Digit",
-                        color = MaterialTheme.colorScheme.error
-                    )
+                if (username.isNotBlank()) {
+                    when {
+                        !isUsernameValid -> Text("5+ chars, lowercase letters, digits, or underscores only", color = MaterialTheme.colorScheme.error)
+                        isUsernameAvailable == false -> Text("Username is already taken", color = MaterialTheme.colorScheme.error)
+                        isUsernameAvailable == true -> Text("Username is available", color = MaterialTheme.colorScheme.primary)
+                    }
                 }
-            }
+            },
+            isError = username.isNotBlank() && (!isUsernameValid || isUsernameAvailable == false)
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -240,6 +244,7 @@ fun SignupScreen(
                 .height(50.dp),
             shape = RoundedCornerShape(12.dp),
             enabled = username.isNotBlank() &&
+                    isUsernameValid &&
                     email.isNotBlank() &&
                     password.isNotBlank() &&
                     isPasswordValid &&

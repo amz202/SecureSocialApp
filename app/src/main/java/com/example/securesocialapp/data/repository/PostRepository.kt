@@ -1,8 +1,10 @@
 package com.example.securesocialapp.data.repository
 
 import com.example.securesocial.data.model.response.PostLikesResponse
+import com.example.securesocialapp.data.model.request.PostCommentRequest
 import com.example.securesocialapp.data.model.response.PostResponse
 import com.example.securesocialapp.data.model.request.PostRequest
+import com.example.securesocialapp.data.model.response.PostCommentResponse
 import com.example.securesocialapp.data.model.response.PostListResponse
 import com.example.securesocialapp.network.ApiService
 import okhttp3.ResponseBody
@@ -15,6 +17,10 @@ interface PostRepository{
     suspend fun likePost(postId: String): ResponseBody
     suspend fun getMyPosts(): List<PostListResponse>
     suspend fun getPostLikes(postId: String): List<PostLikesResponse>
+    suspend fun unlikePost(postId: String): ResponseBody
+    suspend fun getPostComments(postId: String): List<PostCommentResponse>
+    suspend fun createComment(postId: String, request: PostCommentRequest): PostCommentResponse
+    suspend fun deleteComment(postId:String, commentId: String): ResponseBody
 }
 
 class PostRepositoryImpl(
@@ -46,5 +52,21 @@ class PostRepositoryImpl(
 
     override suspend fun getPostLikes(postId: String): List<PostLikesResponse> {
         return apiService.getPostLikes(postId)
+    }
+
+    override suspend fun unlikePost(postId: String): ResponseBody {
+        return apiService.unlikePost(postId)
+    }
+
+    override suspend fun getPostComments(postId: String): List<PostCommentResponse> {
+        return apiService.getPostComments(postId)
+    }
+
+    override suspend fun createComment(postId: String, request: PostCommentRequest): PostCommentResponse {
+        return apiService.createComment(postId, request)
+    }
+
+    override suspend fun deleteComment(postId: String, commentId: String): ResponseBody {
+        return apiService.deleteComment(postId, commentId)
     }
 }

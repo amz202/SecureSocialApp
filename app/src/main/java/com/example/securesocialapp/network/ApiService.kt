@@ -75,6 +75,12 @@ interface ApiService {
         @Body request: PostCommentRequest
     ): PostCommentResponse
 
+    @DELETE("api/posts/{postId}/comment/{commentId}")
+    suspend fun deleteComment(
+        @Path("postId") postId: String,
+        @Path("commentId") commentId: String
+    ): ResponseBody
+
     @GET("api/posts/myPosts")
     suspend fun getMyPosts(): List<PostListResponse>
 

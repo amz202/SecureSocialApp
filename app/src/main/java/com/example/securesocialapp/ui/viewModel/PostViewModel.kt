@@ -12,8 +12,10 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.securesocial.data.model.response.PostLikesResponse
 import com.example.securesocialapp.data.model.response.PostResponse
 import com.example.securesocialapp.SecureSocialApplication
+import com.example.securesocialapp.data.model.request.PostCommentRequest
 import com.example.securesocialapp.data.model.request.PostRequest
 import com.example.securesocialapp.data.model.response.ActivityLog
+import com.example.securesocialapp.data.model.response.PostCommentResponse
 import com.example.securesocialapp.data.model.response.PostListResponse
 import com.example.securesocialapp.data.repository.DashRepository
 import com.example.securesocialapp.data.repository.PostRepository
@@ -27,6 +29,7 @@ typealias PostUiState = BaseUiState<PostResponse>
 typealias LikeUiState = BaseUiState<Unit>
 typealias ActivityUiState = BaseUiState<List<ActivityLog>>
 typealias PostLikesUiState = BaseUiState<List<PostLikesResponse>>
+typealias commentsUiState = BaseUiState<List<PostCommentResponse>>
 
 class PostViewModel(
     private val postRepository: PostRepository,
@@ -51,6 +54,9 @@ class PostViewModel(
         private set
 
     var postLikesUiState: PostLikesUiState by mutableStateOf(BaseUiState.Loading)
+        private set
+
+    var commentsUiState: commentsUiState by mutableStateOf(BaseUiState.Loading)
         private set
 
     var currentTag: PostTag? by mutableStateOf(null)
@@ -89,6 +95,61 @@ class PostViewModel(
                 likeUiState = BaseUiState.Success(Unit)
             } catch (e: Exception) {
                 likeUiState = BaseUiState.Error
+            }
+        }
+    }
+
+    fun unlikePost(postId: String) {
+        viewModelScope.launch {
+            likeUiState = BaseUiState.Loading
+            try {
+                postRepository.unlikePost(postId)
+                val response = postRepository.getPost(postId)
+                _post.value = response
+                likeUiState = BaseUiState.Success(Unit)
+            } catch (e: Exception) {
+                likeUiState = BaseUiState.Error
+            }
+        }
+    }
+
+    fun getPostComments(postId: String) {
+        viewModelScope.launch {
+            commentsUiState = BaseUiState.Loading
+            try {
+                val response = postRepository.getPostComments(postId)
+                commentsUiState = BaseUiState.Success(response)
+            } catch (e: Exception) {
+                commentsUiState = BaseUiState.Error
+            }
+        }
+    }
+
+    fun createComment(postId:String, comment: String) {
+        viewModelScope.launch {
+            commentsUiState = BaseUiState.Loading
+            try {
+                val request = PostCommentRequest(
+                    comment = comment
+                )
+                postRepository.createComment(postId, request)
+                val response = postRepository.getPostComments(postId)
+                commentsUiState = BaseUiState.Success(response)
+            } catch (e: Exception) {
+                commentsUiState = BaseUiState.Error
+            }
+        }
+    }
+
+    fun deleteComment(postId:String, commentId: String) {
+        viewModelScope.launch {
+            commentsUiState = BaseUiState.Loading
+            try {
+                postRepository.deleteComment(postId, commentId)
+                val response = postRepository.getPostComments(postId)
+                commentsUiState = BaseUiState.Success(response)
+            } catch (e: Exception) {
+                commentsUiState = BaseUiState.Error
             }
         }
     }
