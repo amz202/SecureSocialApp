@@ -8,8 +8,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
@@ -305,21 +307,20 @@ fun PostItem(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- BOTTOM ROW (Time & Stats) ---
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 // Pushes Time to start (Left) and Stats to end (Right)
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 1. TIME (Bottom Left)
+                // Time (Bottom Left)
                 Text(
-                    text = formatConciseTime(post.createdAt), // <--- UPDATED HERE
+                    text = formatConciseTime(post.createdAt),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.outline // Light grey text
                 )
 
-                // 2. STATS (Bottom Right)
+                // Stats (Bottom Right)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(16.dp) // Space between Likes and Views
@@ -329,7 +330,7 @@ fun PostItem(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        val likeColor = Color(0xFFE91E63)
+                        val likeColor = MaterialTheme.colorScheme.primary
                         Icon(
                             imageVector = Icons.Default.Favorite,
                             contentDescription = "Likes",
@@ -341,6 +342,24 @@ fun PostItem(
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Medium,
                             color = likeColor
+                        )
+                    }
+
+                    // Comments
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Comment,
+                            contentDescription = "Comments",
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = post.commentCount.toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 

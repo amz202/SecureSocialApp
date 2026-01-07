@@ -3,5 +3,6 @@ package com.example.securesocialapp.data.model.response
 enum class LogType {
     LOGIN,
     LIKE,
-    POST
+    POST,
+    COMMENT,
 }

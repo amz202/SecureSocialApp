@@ -134,6 +134,8 @@ class PostViewModel(
                 )
                 postRepository.createComment(postId, request)
                 val response = postRepository.getPostComments(postId)
+                val post = postRepository.getPost(postId)
+                _post.value = post
                 commentsUiState = BaseUiState.Success(response)
             } catch (e: Exception) {
                 commentsUiState = BaseUiState.Error
@@ -161,8 +163,10 @@ class PostViewModel(
                 val response = postRepository.getPost(postId)
                 _post.value = response
                 postUiState = BaseUiState.Success(response)
+                Log.d("PostViewModel", "Fetched post: $response")
             } catch (e: Exception) {
                 postUiState = BaseUiState.Error
+                Log.e("PostViewModel", "Fetched post: $e")
             }
         }
     }
@@ -248,6 +252,10 @@ class PostViewModel(
     }
     fun resetCreatePostState() {
         createPostUiState = BaseUiState.Success(null)
+    }
+
+    fun resetCommentsState() {
+        commentsUiState = BaseUiState.Success(emptyList())
     }
 
     companion object {

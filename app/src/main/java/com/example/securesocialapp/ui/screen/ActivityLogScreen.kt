@@ -159,6 +159,7 @@ fun ActivityLogItem(
         LogType.LOGIN -> Icons.Default.Login to Color(0xFF4CAF50) // Green
         LogType.LIKE -> Icons.Default.Favorite to Color(0xFFE91E63) // Pink/Red
         LogType.POST -> Icons.Default.Edit to Color(0xFFFF9800) // Orange
+        LogType.COMMENT -> Icons.Default.Comment to Color(0xFF2196F3) // Blue
         else -> Icons.Default.Info to Color.Gray
     }
 

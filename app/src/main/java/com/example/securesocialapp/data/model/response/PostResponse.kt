@@ -13,6 +13,6 @@ data class PostResponse(
     val authorName: String,
     val likeCount: Long,
     val viewCount: Long,
-    val commentCount: Long,
-    val isLiked: Boolean
+    val commentCount: Long = 0,
+    val liked: Boolean
 )

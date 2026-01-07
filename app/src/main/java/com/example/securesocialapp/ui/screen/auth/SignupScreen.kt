@@ -128,6 +128,7 @@ fun SignupScreen(
             trailingIcon = {
                 if (username.isNotBlank()) {
                     when {
+                        !isUsernameValid -> Icon(Icons.Default.Warning, "Invalid format", tint = MaterialTheme.colorScheme.error)
                         isUsernameChecking -> CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                         isUsernameAvailable == true -> Icon(Icons.Default.CheckCircle, "Available", tint = MaterialTheme.colorScheme.primary)
                         isUsernameAvailable == false -> Icon(Icons.Default.Warning, "Taken", tint = MaterialTheme.colorScheme.error)
@@ -136,14 +137,14 @@ fun SignupScreen(
             },
             supportingText = {
                 if (username.isNotBlank()) {
-                    when (isUsernameAvailable) {
-                        false -> Text("Username is already taken", color = MaterialTheme.colorScheme.error)
-                        true -> Text("Username is available", color = MaterialTheme.colorScheme.primary)
-                        else -> {}
+                    when {
+                        !isUsernameValid -> Text("5+ chars, lowercase letters, digits, or underscores only", color = MaterialTheme.colorScheme.error)
+                        isUsernameAvailable == false -> Text("Username is already taken", color = MaterialTheme.colorScheme.error)
+                        isUsernameAvailable == true -> Text("Username is available", color = MaterialTheme.colorScheme.primary)
                     }
                 }
             },
-            isError = username.isNotBlank() && isUsernameAvailable == false
+            isError = username.isNotBlank() && (!isUsernameValid || isUsernameAvailable == false)
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -164,34 +165,33 @@ fun SignupScreen(
 
         // Password field
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") },
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+
             trailingIcon = {
-                if (username.isNotBlank()) {
-                    when {
-                        !isUsernameValid -> Icon(Icons.Default.Warning, "Invalid format", tint = MaterialTheme.colorScheme.error)
-                        isUsernameChecking -> CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                        isUsernameAvailable == true -> Icon(Icons.Default.CheckCircle, "Available", tint = MaterialTheme.colorScheme.primary)
-                        isUsernameAvailable == false -> Icon(Icons.Default.Warning, "Taken", tint = MaterialTheme.colorScheme.error)
-                    }
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = "Toggle Password"
+                    )
                 }
             },
+            isError = password.isNotBlank() && !isPasswordValid,
             supportingText = {
-                if (username.isNotBlank()) {
-                    when {
-                        !isUsernameValid -> Text("5+ chars, lowercase letters, digits, or underscores only", color = MaterialTheme.colorScheme.error)
-                        isUsernameAvailable == false -> Text("Username is already taken", color = MaterialTheme.colorScheme.error)
-                        isUsernameAvailable == true -> Text("Username is available", color = MaterialTheme.colorScheme.primary)
-                    }
+                if (password.isNotBlank() && !isPasswordValid) {
+                    Text(
+                        "Must be 9+ chars, 1 Upper, 1 Lower, 1 Digit",
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
-            },
-            isError = username.isNotBlank() && (!isUsernameValid || isUsernameAvailable == false)
+            }
         )
 
         Spacer(modifier = Modifier.height(8.dp))

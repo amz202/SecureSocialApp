@@ -29,7 +29,7 @@ fun formatConciseTime(timestamp: Long): String {
         minutes < 60 -> "${minutes} min"
 
         // Hours (< 24 hours)
-        hours < 24 -> "${hours} hr"
+        hours < 24 -> "${hours} hour"
 
         // Yesterday (Check strictly against calendar date)
         dateTime.toLocalDate().isEqual(now.toLocalDate().minusDays(1)) -> "Yesterday"

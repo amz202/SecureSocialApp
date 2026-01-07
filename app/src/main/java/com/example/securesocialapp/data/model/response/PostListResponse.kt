@@ -11,5 +11,5 @@ data class PostListResponse(
     val createdAt: Long,
     val likeCount: Long,
     val viewCount: Long,
-    val commentCount: Long,
+    val commentCount: Long = 0,
 )
