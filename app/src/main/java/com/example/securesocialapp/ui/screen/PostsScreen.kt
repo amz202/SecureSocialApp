@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
@@ -22,13 +21,12 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.securesocial.data.model.response.PostResponse
+import com.example.securesocialapp.data.model.response.PostResponse
 import com.example.securesocialapp.data.datastore.UserPreferences
+import com.example.securesocialapp.data.model.response.PostListResponse
 import com.example.securesocialapp.ui.navigation.ActivityLogScreenNav
 import com.example.securesocialapp.ui.navigation.CreatePostScreenNav
 import com.example.securesocialapp.ui.navigation.LoginScreenNav
@@ -47,7 +45,6 @@ import com.example.securesocialapp.ui.viewModel.PostsUiState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.toString
 
 enum class PostTag {
     SECURITY, TECH, NEWS, LIFESTYLE, MEME, RANDOM
@@ -89,7 +86,7 @@ fun PostsScreen(
 @Composable
 fun PostsList(
     modifier: Modifier = Modifier,
-    posts: List<PostResponse>,
+    posts: List<PostListResponse>,
     navController: NavHostController,
     postViewModel: PostViewModel,
     navigationViewModel: NavigationViewModel,
@@ -251,7 +248,7 @@ fun PostsList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostItem(
-    post: PostResponse,
+    post: PostListResponse,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {

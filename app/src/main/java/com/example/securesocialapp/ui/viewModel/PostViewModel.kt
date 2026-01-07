@@ -10,10 +10,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.securesocial.data.model.response.PostLikesResponse
-import com.example.securesocial.data.model.response.PostResponse
+import com.example.securesocialapp.data.model.response.PostResponse
 import com.example.securesocialapp.SecureSocialApplication
 import com.example.securesocialapp.data.model.request.PostRequest
 import com.example.securesocialapp.data.model.response.ActivityLog
+import com.example.securesocialapp.data.model.response.PostListResponse
 import com.example.securesocialapp.data.repository.DashRepository
 import com.example.securesocialapp.data.repository.PostRepository
 import com.example.securesocialapp.ui.screen.PostTag
@@ -21,7 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-typealias PostsUiState = BaseUiState<List<PostResponse>>
+typealias PostsUiState = BaseUiState<List<PostListResponse>>
 typealias PostUiState = BaseUiState<PostResponse>
 typealias LikeUiState = BaseUiState<Unit>
 typealias ActivityUiState = BaseUiState<List<ActivityLog>>

@@ -144,7 +144,7 @@ fun CreatePostScreen(
                 placeholder = { Text("What's on your mind?") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp), // Taller box
+                    .height(300.dp), // Taller box
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = Color(0xFFFAFAFA),

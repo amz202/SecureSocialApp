@@ -46,7 +46,7 @@ class AuthViewModel(
             try {
                 val response = authRepository.login(request)
                 userPreferences.saveTokens(response.accessToken, response.refreshToken)
-
+                Log.d("authviewmodel", "Tokens saved: ${response.accessToken}, ${response.refreshToken}")
                 userPreferences.saveUser(
                     id = response.userId,
                     username = response.username,

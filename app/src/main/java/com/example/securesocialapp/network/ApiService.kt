@@ -1,14 +1,18 @@
 package com.example.securesocialapp.network
 import com.example.securesocial.data.model.response.PostLikesResponse
-import com.example.securesocial.data.model.response.PostResponse
+import com.example.securesocialapp.data.model.response.PostResponse
 import com.example.securesocialapp.data.model.response.ActivityLog
 import com.example.securesocialapp.data.model.request.LoginRequest
 import com.example.securesocialapp.data.model.request.OtpRequest
+import com.example.securesocialapp.data.model.request.PostCommentRequest
 import com.example.securesocialapp.data.model.request.PostRequest
 import com.example.securesocialapp.data.model.request.RegisterRequest
 import com.example.securesocialapp.data.model.response.AuthResponse
+import com.example.securesocialapp.data.model.response.PostCommentResponse
+import com.example.securesocialapp.data.model.response.PostListResponse
 import okhttp3.ResponseBody
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -40,7 +44,7 @@ interface ApiService {
     ): PostResponse
 
     @GET("api/posts")
-    suspend fun getAllPosts(): List<PostResponse>
+    suspend fun getAllPosts(): List<PostListResponse>
 
     @GET("api/posts/{postId}")
     suspend fun getPost(
@@ -48,15 +52,31 @@ interface ApiService {
     ): PostResponse
 
     @GET("api/posts/tag/{tagName}")
-    suspend fun getPostsByTag(@Path("tagName") tagName: String): List<PostResponse>
+    suspend fun getPostsByTag(@Path("tagName") tagName: String): List<PostListResponse>
 
     @POST("api/posts/{postId}/like")
     suspend fun likePost(
         @Path("postId") postId: String
     ): ResponseBody
 
+    @DELETE("api/posts/{postId}/unlike")
+    suspend fun unlikePost(
+        @Path("postId") postId: String
+    ): ResponseBody
+
+    @GET("api/posts/{postId}/comments")
+    suspend fun getPostComments(
+        @Path("postId") postId: String
+    ): List<PostCommentResponse>
+
+    @POST("api/posts/{postId}/comment")
+    suspend fun createComment(
+        @Path("postId") postId: String,
+        @Body request: PostCommentRequest
+    ): PostCommentResponse
+
     @GET("api/posts/myPosts")
-    suspend fun getMyPosts(): List<PostResponse>
+    suspend fun getMyPosts(): List<PostListResponse>
 
     @GET("api/posts/{postId}/likes")
     suspend fun getPostLikes(

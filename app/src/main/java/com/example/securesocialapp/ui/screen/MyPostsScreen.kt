@@ -16,9 +16,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.securesocial.data.model.response.PostResponse
+import com.example.securesocialapp.data.model.response.PostListResponse
+import com.example.securesocialapp.data.model.response.PostResponse
 import com.example.securesocialapp.ui.navigation.ActivityLogScreenNav
 import com.example.securesocialapp.ui.navigation.MyPostsScreenNav
 import com.example.securesocialapp.ui.navigation.PostDetailsScreenNav
@@ -61,7 +61,7 @@ fun MyPostsScreen(
 @Composable
 fun MyPostsList(
     modifier: Modifier = Modifier,
-    posts: List<PostResponse>,
+    posts: List<PostListResponse>,
     navController: NavHostController,
     navigationViewModel: NavigationViewModel
 ) {
