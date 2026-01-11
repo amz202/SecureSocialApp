@@ -15,8 +15,9 @@ A security-focused social media application built to demonstrate robust authenti
 
 - Feed with tag-based filtering and relative timestamps  
 - Post creation with text input and tag selection  
-- Like posts and view the list of users who liked a post  
-- Activity log for login, posts, and likes  
+- Like posts and view the list of users who liked a post
+- Comment on the posts, with timestamps
+- Activity log for login, posts, comments and likes  
 
 ### Security (Backend-Enforced)
 
@@ -51,13 +52,13 @@ A security-focused social media application built to demonstrate robust authenti
 ## UI Previews
 
 ### Authentication
-<img width="1560" height="1080" alt="1" src="https://github.com/user-attachments/assets/ae0d9ead-ae62-4fa1-bd83-97adeb3ddbc0" />
+<img width="1560" height="1080" alt="1" src="https://github.com/user-attachments/assets/932e97bc-f7d3-4a9f-b03c-88923e943051" />
 
 ### Posts, Activity Log, My Posts
-<img width="1560" height="1080" alt="2" src="https://github.com/user-attachments/assets/37154c63-1841-4b1c-ac5c-c3ce992a1350" />
+<img width="1560" height="1080" alt="2" src="https://github.com/user-attachments/assets/15d28fb7-39a0-4143-9495-006b1c355a0f" />
 
 ### Add Post, Post Info
-<img width="1560" height="1080" alt="3" src="https://github.com/user-attachments/assets/8259b87f-1680-4b1e-a79f-ad171eac3968" />
+<img width="1600" height="900" alt="3" src="https://github.com/user-attachments/assets/099c4b83-ac23-4a5e-9992-caaebc3bf582" />
 
 ---
 
